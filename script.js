@@ -33,16 +33,20 @@ function escapeHtml(value = "") {
 }
 
 function openModal(el) {
+  if (!el) return;
+
   el.classList.remove("hidden");
   document.body.classList.add("locked");
 }
 
 function closeModal(el) {
+  if (!el) return;
+
   el.classList.add("hidden");
 
   if (
     ![loginModal, adminModal, journalGate].some(
-      m => !m.classList.contains("hidden")
+      m => m && !m.classList.contains("hidden")
     )
   ) {
     document.body.classList.remove("locked");
@@ -61,8 +65,12 @@ document.querySelectorAll("[data-close]").forEach(btn => {
 });
 
 [loginModal, adminModal, journalGate].forEach(modal => {
+  if (!modal) return;
+
   modal.addEventListener("click", e => {
-    if (e.target === modal) closeModal(modal);
+    if (e.target === modal) {
+      closeModal(modal);
+    }
   });
 });
 
@@ -71,116 +79,170 @@ document.querySelectorAll("[data-close]").forEach(btn => {
    OWNER LOGIN
 ========================================================= */
 
-document.getElementById("ownerLoginBtn").addEventListener("click", () => {
-  loginMsg.textContent = configured
-    ? ""
-    : "Finish the one-time setup in README.md first.";
+const ownerLoginBtn =
+  document.getElementById("ownerLoginBtn");
 
-  document.getElementById("passcode").value = "";
+if (ownerLoginBtn) {
+  ownerLoginBtn.addEventListener("click", () => {
+    if (loginMsg) {
+      loginMsg.textContent = configured
+        ? ""
+        : "Finish the one-time setup in README.md first.";
+    }
 
-  openModal(loginModal);
-});
+    const passcode =
+      document.getElementById("passcode");
+
+    if (passcode) {
+      passcode.value = "";
+    }
+
+    openModal(loginModal);
+  });
+}
 
 
-document.getElementById("loginForm").addEventListener("submit", async e => {
-  e.preventDefault();
+const loginForm =
+  document.getElementById("loginForm");
 
-  if (!configured) {
-    loginMsg.textContent =
-      "Supabase is not configured correctly.";
-    return;
-  }
+if (loginForm) {
+  loginForm.addEventListener("submit", async e => {
+    e.preventDefault();
 
-  const password = document.getElementById("passcode").value;
-
-  if (!password) {
-    loginMsg.textContent = "Enter your passcode.";
-    return;
-  }
-
-  loginMsg.textContent = "Checking…";
-
-  try {
-    const { error } = await db.auth.signInWithPassword({
-      email: window.SUPABASE_OWNER_EMAIL,
-      password
-    });
-
-    if (error) {
-      console.error("LOGIN ERROR:", error);
-      loginMsg.textContent = "That passcode didn't work.";
+    if (!configured) {
+      loginMsg.textContent =
+        "Supabase is not configured correctly.";
       return;
     }
 
-    closeModal(loginModal);
+    const password =
+      document.getElementById("passcode").value;
 
-    await openAdmin();
+    if (!password) {
+      loginMsg.textContent =
+        "Enter your passcode.";
+      return;
+    }
 
-  } catch (error) {
-    console.error("LOGIN ERROR:", error);
     loginMsg.textContent =
-      error?.message || "Something went wrong while logging in.";
-  }
-});
+      "Checking…";
+
+    try {
+      const { error } =
+        await db.auth.signInWithPassword({
+          email: window.SUPABASE_OWNER_EMAIL,
+          password
+        });
+
+      if (error) {
+        console.error(
+          "LOGIN ERROR:",
+          error
+        );
+
+        loginMsg.textContent =
+          "That passcode didn't work.";
+
+        return;
+      }
+
+      closeModal(loginModal);
+
+      await openAdmin();
+
+    } catch (error) {
+      console.error(
+        "LOGIN ERROR:",
+        error
+      );
+
+      loginMsg.textContent =
+        error?.message ||
+        "Something went wrong while logging in.";
+    }
+  });
+}
 
 
-document.getElementById("logoutBtn").addEventListener("click", async () => {
-  if (db) {
-    await db.auth.signOut();
-  }
+const logoutBtn =
+  document.getElementById("logoutBtn");
 
-  closeModal(adminModal);
-});
+if (logoutBtn) {
+  logoutBtn.addEventListener("click", async () => {
+    if (db) {
+      await db.auth.signOut();
+    }
+
+    closeModal(adminModal);
+  });
+}
 
 
 /* =========================================================
    JOURNAL GATE
 ========================================================= */
 
-const journalNav = document.getElementById("journalNav");
+const journalNav =
+  document.getElementById("journalNav");
 
 let journalApproved = false;
 
-journalNav.addEventListener("click", e => {
-  e.preventDefault();
+if (journalNav) {
+  journalNav.addEventListener("click", e => {
+    e.preventDefault();
 
-  if (journalApproved) {
+    if (journalApproved) {
+      document
+        .getElementById("journal")
+        .scrollIntoView({
+          behavior: "smooth"
+        });
+
+      return;
+    }
+
+    openModal(journalGate);
+  });
+}
+
+
+const journalYes =
+  document.getElementById("journalYes");
+
+if (journalYes) {
+  journalYes.addEventListener("click", () => {
+    journalApproved = true;
+
+    closeModal(journalGate);
+
     document
       .getElementById("journal")
-      .scrollIntoView({ behavior: "smooth" });
-
-    return;
-  }
-
-  openModal(journalGate);
-});
-
-
-document.getElementById("journalYes").addEventListener("click", () => {
-  journalApproved = true;
-
-  closeModal(journalGate);
-
-  document
-    .getElementById("journal")
-    .scrollIntoView({ behavior: "smooth" });
-});
-
-
-document.getElementById("journalNo").addEventListener("click", () => {
-  closeModal(journalGate);
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
+      .scrollIntoView({
+        behavior: "smooth"
+      });
   });
+}
 
-  setTimeout(() => {
-    alert(
-      "You should've been sure if you wanted to see these things."
-    );
-  }, 250);
-});
+
+const journalNo =
+  document.getElementById("journalNo");
+
+if (journalNo) {
+  journalNo.addEventListener("click", () => {
+    closeModal(journalGate);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+    setTimeout(() => {
+      alert(
+        "You should've been sure if you wanted to see these things."
+      );
+    }, 250);
+  });
+}
 
 
 /* =========================================================
@@ -189,7 +251,8 @@ document.getElementById("journalNo").addEventListener("click", () => {
 
 async function loadSite() {
   if (!db) {
-    galleryGrid.innerHTML = localGallery();
+    galleryGrid.innerHTML =
+      localGallery();
 
     journalList.innerHTML = `
       <p class="empty-state">
@@ -203,97 +266,69 @@ async function loadSite() {
   }
 
   try {
-    const [photosResult, journalsResult] = await Promise.all([
+    const [
+      photosResult,
+      journalsResult
+    ] = await Promise.all([
       db
         .from("gallery_photos")
         .select("*")
-        .order("created_at", { ascending: false }),
+        .order("created_at", {
+          ascending: false
+        }),
 
       db
         .from("journal_entries")
         .select("*")
-        .order("created_at", { ascending: false })
+        .order("created_at", {
+          ascending: false
+        })
     ]);
 
     if (photosResult.error) {
-      console.error("GALLERY ERROR:", photosResult.error);
+      console.error(
+        "GALLERY ERROR:",
+        photosResult.error
+      );
 
-      galleryGrid.innerHTML = localGallery();
+      galleryGrid.innerHTML =
+        localGallery();
 
       bindSocial();
+
     } else {
-      renderGallery(photosResult.data || []);
+      renderGallery(
+        photosResult.data || []
+      );
     }
 
+
     if (journalsResult.error) {
-      console.error("JOURNAL ERROR:", journalsResult.error);
+      console.error(
+        "JOURNAL ERROR:",
+        journalsResult.error
+      );
 
       journalList.innerHTML = `
         <p class="empty-state">
           Journal unavailable.
         </p>
       `;
+
     } else {
-      renderJournal(journalsResult.data || []);
+      renderJournal(
+        journalsResult.data || []
+      );
     }
 
   } catch (error) {
-    console.error("LOAD SITE ERROR:", error);
+    console.error(
+      "LOAD SITE ERROR:",
+      error
+    );
 
-    galleryGrid.innerHTML = localGallery();
-
-    journalList.innerHTML = `
-      <p class="empty-state">
-        Archive temporarily unavailable.
-      </p>
-    `;
-
-    bindSocial();
-  }
-}
-```
-
-  }
-
-  try {
-    const [photosResult, journalsResult] = await Promise.all([
-      db
-        .from("gallery_photos")
-        .select("*")
-        .order("created_at", { ascending: false }),
-
-      db
-        .from("journal_entries")
-        .select("*")
-        .order("created_at", { ascending: false })
-    ]);
-
-    if (photosResult.error) {
-      console.error("GALLERY ERROR:", photosResult.error);
-
-      galleryGrid.innerHTML = localGallery();
-
-      bindSocial();
-    } else {
-      renderGallery(photosResult.data || []);
-    }
-
-    if (journalsResult.error) {
-      console.error("JOURNAL ERROR:", journalsResult.error);
-
-      journalList.innerHTML = `
-        <p class="empty-state">
-          Journal unavailable.
-        </p>
-      `;
-    } else {
-      renderJournal(journalsResult.data || []);
-    }
-
-  } catch (error) {
-    console.error("LOAD SITE ERROR:", error);
-
-    galleryGrid.innerHTML = localGallery();
+    galleryGrid.innerHTML =
+      localGallery();
 
     journalList.innerHTML = `
       <p class="empty-state">
@@ -356,7 +391,6 @@ function localGallery() {
 function renderGallery(photos) {
 
   if (!photos.length) {
-
     galleryGrid.innerHTML = `
       <p class="empty-state">
         No photos yet.
@@ -463,37 +497,41 @@ function renderGallery(photos) {
 
 function renderJournal(entries) {
 
-  journalList.innerHTML = entries.length
+  journalList.innerHTML =
+    entries.length
 
-    ? entries
-        .map(e => `
-          <article class="journal-entry">
+      ? entries
+          .map(e => `
+            <article class="journal-entry">
 
-            <div class="journal-date">
-              ${new Date(e.created_at).toLocaleDateString("en-GB")}
-            </div>
+              <div class="journal-date">
+                ${new Date(
+                  e.created_at
+                ).toLocaleDateString("en-GB")}
+              </div>
 
-            <div>
+              <div>
 
-              <h3>
-                ${escapeHtml(e.title)}
-              </h3>
+                <h3>
+                  ${escapeHtml(e.title)}
+                </h3>
 
-              <p>
-                ${escapeHtml(e.body).replace(/\n/g, "<br>")}
-              </p>
+                <p>
+                  ${escapeHtml(e.body)
+                    .replace(/\n/g, "<br>")}
+                </p>
 
-            </div>
+              </div>
 
-          </article>
-        `)
-        .join("")
+            </article>
+          `)
+          .join("")
 
-    : `
-      <p class="empty-state">
-        No journal entries yet.
-      </p>
-    `;
+      : `
+        <p class="empty-state">
+          No journal entries yet.
+        </p>
+      `;
 }
 
 
@@ -503,39 +541,62 @@ function renderJournal(entries) {
 
 function bindSocial() {
 
-  document.querySelectorAll(".like-btn").forEach(btn => {
+  document
+    .querySelectorAll(".like-btn")
+    .forEach(btn => {
 
-    btn.addEventListener("click", () => {
-      likePhoto(btn.dataset.photo, btn);
-    });
-
-  });
-
-
-  document.querySelectorAll(".comment-toggle").forEach(btn => {
-
-    btn.addEventListener("click", () => {
-
-      document
-        .getElementById(btn.dataset.target)
-        ?.classList.toggle("hidden");
+      btn.addEventListener(
+        "click",
+        () => {
+          likePhoto(
+            btn.dataset.photo,
+            btn
+          );
+        }
+      );
 
     });
 
-  });
+
+  document
+    .querySelectorAll(".comment-toggle")
+    .forEach(btn => {
+
+      btn.addEventListener(
+        "click",
+        () => {
+
+          document
+            .getElementById(
+              btn.dataset.target
+            )
+            ?.classList.toggle("hidden");
+
+        }
+      );
+
+    });
 
 
-  document.querySelectorAll(".comment-form").forEach(form => {
+  document
+    .querySelectorAll(".comment-form")
+    .forEach(form => {
 
-    form.addEventListener("submit", postComment);
+      form.addEventListener(
+        "submit",
+        postComment
+      );
 
-  });
+    });
 }
 
 
 function visitorId() {
 
-  let id = localStorage.getItem("tito_visitor_id");
+  let id =
+    localStorage.getItem(
+      "tito_visitor_id"
+    );
 
   if (!id) {
 
@@ -562,20 +623,27 @@ async function loadSocial(photoId) {
 
   try {
 
-    const { count } = await db
-      .from("photo_likes")
-      .select("*", {
-        count: "exact",
-        head: true
-      })
-      .eq("photo_id", photoId);
+    const { count } =
+      await db
+        .from("photo_likes")
+        .select("*", {
+          count: "exact",
+          head: true
+        })
+        .eq(
+          "photo_id",
+          photoId
+        );
 
 
     const likeEl =
-      document.getElementById(`likes-${photoId}`);
+      document.getElementById(
+        `likes-${photoId}`
+      );
 
     if (likeEl) {
-      likeEl.textContent = count || 0;
+      likeEl.textContent =
+        count || 0;
     }
 
 
@@ -587,22 +655,31 @@ async function loadSocial(photoId) {
 
     if (
       likeBtn &&
-      localStorage.getItem(likedKey(photoId))
+      localStorage.getItem(
+        likedKey(photoId)
+      )
     ) {
 
-      likeBtn.classList.add("liked");
+      likeBtn.classList.add(
+        "liked"
+      );
 
-      likeBtn.firstChild.textContent = "♥ ";
+      likeBtn.firstChild.textContent =
+        "♥ ";
     }
 
 
-    const { data: comments } = await db
-      .from("photo_comments")
-      .select("*")
-      .eq("photo_id", photoId)
-      .order("created_at", {
-        ascending: true
-      });
+    const { data: comments } =
+      await db
+        .from("photo_comments")
+        .select("*")
+        .eq(
+          "photo_id",
+          photoId
+        )
+        .order("created_at", {
+          ascending: true
+        });
 
 
     const list =
@@ -613,21 +690,26 @@ async function loadSocial(photoId) {
 
     if (list) {
 
-      list.innerHTML = (comments || [])
-        .map(c => `
-          <div class="comment">
+      list.innerHTML =
+        (comments || [])
+          .map(c => `
+            <div class="comment">
 
-            <b>
-              ${escapeHtml(c.author_name)}
-            </b>
+              <b>
+                ${escapeHtml(
+                  c.author_name
+                )}
+              </b>
 
-            <span>
-              ${escapeHtml(c.body)}
-            </span>
+              <span>
+                ${escapeHtml(
+                  c.body
+                )}
+              </span>
 
-          </div>
-        `)
-        .join("");
+            </div>
+          `)
+          .join("");
     }
 
   } catch (error) {
@@ -641,36 +723,52 @@ async function loadSocial(photoId) {
 }
 
 
-async function likePhoto(photoId, btn) {
+async function likePhoto(
+  photoId,
+  btn
+) {
 
   if (!db) {
 
-    const span = btn.querySelector("span");
+    const span =
+      btn.querySelector(
+        "span"
+      );
 
     span.textContent =
-      Number(span.textContent || 0) + 1;
+      Number(
+        span.textContent || 0
+      ) + 1;
 
-    btn.classList.add("liked");
+    btn.classList.add(
+      "liked"
+    );
 
-    btn.firstChild.textContent = "♥ ";
+    btn.firstChild.textContent =
+      "♥ ";
 
     return;
   }
 
 
-  if (localStorage.getItem(likedKey(photoId))) {
+  if (
+    localStorage.getItem(
+      likedKey(photoId)
+    )
+  ) {
     return;
   }
 
 
   try {
 
-    const { error } = await db
-      .from("photo_likes")
-      .insert({
-        photo_id: photoId,
-        visitor_id: visitorId()
-      });
+    const { error } =
+      await db
+        .from("photo_likes")
+        .insert({
+          photo_id: photoId,
+          visitor_id: visitorId()
+        });
 
 
     if (error) {
@@ -705,7 +803,9 @@ async function likePhoto(photoId, btn) {
     }
 
 
-    await loadSocial(photoId);
+    await loadSocial(
+      photoId
+    );
 
   } catch (error) {
 
@@ -727,12 +827,15 @@ async function postComment(e) {
 
   if (!db) return;
 
-  const form = e.currentTarget;
+  const form =
+    e.currentTarget;
+
 
   const name =
     form.elements.name.value
       .trim()
       .slice(0, 40);
+
 
   const body =
     form.elements.body.value
@@ -745,13 +848,18 @@ async function postComment(e) {
 
   try {
 
-    const { error } = await db
-      .from("photo_comments")
-      .insert({
-        photo_id: form.dataset.photo,
-        author_name: name,
-        body
-      });
+    const { error } =
+      await db
+        .from("photo_comments")
+        .insert({
+          photo_id:
+            form.dataset.photo,
+
+          author_name:
+            name,
+
+          body
+        });
 
 
     if (error) {
@@ -788,34 +896,51 @@ async function postComment(e) {
    ADMIN TABS
 ========================================================= */
 
-document.querySelectorAll(".tab").forEach(tab => {
+document
+  .querySelectorAll(".tab")
+  .forEach(tab => {
 
-  tab.addEventListener("click", () => {
+    tab.addEventListener(
+      "click",
+      () => {
 
-    document
-      .querySelectorAll(".tab")
-      .forEach(x =>
-        x.classList.remove("active")
-      );
-
-
-    tab.classList.add("active");
-
-
-    document
-      .querySelectorAll(".admin-tab-content")
-      .forEach(x =>
-        x.classList.add("hidden")
-      );
+        document
+          .querySelectorAll(".tab")
+          .forEach(x =>
+            x.classList.remove(
+              "active"
+            )
+          );
 
 
-    document
-      .getElementById(`${tab.dataset.tab}Tab`)
-      .classList.remove("hidden");
+        tab.classList.add(
+          "active"
+        );
+
+
+        document
+          .querySelectorAll(
+            ".admin-tab-content"
+          )
+          .forEach(x =>
+            x.classList.add(
+              "hidden"
+            )
+          );
+
+
+        document
+          .getElementById(
+            `${tab.dataset.tab}Tab`
+          )
+          .classList.remove(
+            "hidden"
+          );
+
+      }
+    );
 
   });
-
-});
 
 
 /* =========================================================
@@ -824,7 +949,9 @@ document.querySelectorAll(".tab").forEach(tab => {
 
 async function openAdmin() {
 
-  openModal(adminModal);
+  openModal(
+    adminModal
+  );
 
   await refreshAdmin();
 }
@@ -841,28 +968,31 @@ async function refreshAdmin() {
 
   try {
 
-    const [photosResult, journalsResult] =
-      await Promise.all([
+    const [
+      photosResult,
+      journalsResult
+    ] = await Promise.all([
 
-        db
-          .from("gallery_photos")
-          .select("*")
-          .order("created_at", {
-            ascending: false
-          }),
+      db
+        .from("gallery_photos")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        }),
 
-        db
-          .from("journal_entries")
-          .select("*")
-          .order("created_at", {
-            ascending: false
-          })
+      db
+        .from("journal_entries")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        })
 
-      ]);
+    ]);
 
 
     const photos =
       photosResult.data || [];
+
 
     const journals =
       journalsResult.data || [];
@@ -887,50 +1017,55 @@ async function refreshAdmin() {
 
       document.getElementById(
         "adminPhotos"
-      ).innerHTML = photos.length
+      ).innerHTML =
+        photos.length
 
-        ? photos
-            .map(p => `
-              <div class="admin-item">
+          ? photos
+              .map(p => `
+                <div class="admin-item">
 
-                <div class="admin-item-main">
+                  <div class="admin-item-main">
 
-                  <b>
-                    ${escapeHtml(p.title)}
-                  </b>
+                    <b>
+                      ${escapeHtml(
+                        p.title
+                      )}
+                    </b>
 
-                  <small>
-                    Photo
-                  </small>
+                    <small>
+                      Photo
+                    </small>
+
+                  </div>
+
+                  <div class="admin-actions">
+
+                    <button
+                      onclick="editPhoto('${p.id}')"
+                    >
+                      EDIT
+                    </button>
+
+                    <button
+                      class="danger"
+                      onclick="deletePhoto('${p.id}', '${escapeHtml(
+                        p.image_path || ""
+                      )}')"
+                    >
+                      DELETE
+                    </button>
+
+                  </div>
 
                 </div>
+              `)
+              .join("")
 
-                <div class="admin-actions">
-
-                  <button
-                    onclick="editPhoto('${p.id}')"
-                  >
-                    EDIT
-                  </button>
-
-                  <button
-                    class="danger"
-                    onclick="deletePhoto('${p.id}', '${escapeHtml(p.image_path || "")}')"
-                  >
-                    DELETE
-                  </button>
-
-                </div>
-
-              </div>
-            `)
-            .join("")
-
-        : `
-          <p class="empty-state">
-            No photos yet.
-          </p>
-        `;
+          : `
+            <p class="empty-state">
+              No photos yet.
+            </p>
+          `;
     }
 
 
@@ -953,58 +1088,76 @@ async function refreshAdmin() {
 
       document.getElementById(
         "adminJournals"
-      ).innerHTML = journals.length
+      ).innerHTML =
+        journals.length
 
-        ? journals
-            .map(j => `
-              <div class="admin-item">
+          ? journals
+              .map(j => `
+                <div class="admin-item">
 
-                <div class="admin-item-main">
+                  <div class="admin-item-main">
 
-                  <b>
-                    ${escapeHtml(j.title)}
-                  </b>
+                    <b>
+                      ${escapeHtml(
+                        j.title
+                      )}
+                    </b>
 
-                  <small>
-                    ${new Date(
-                      j.created_at
-                    ).toLocaleDateString("en-GB")}
-                  </small>
+                    <small>
+                      ${new Date(
+                        j.created_at
+                      ).toLocaleDateString(
+                        "en-GB"
+                      )}
+                    </small>
+
+                  </div>
+
+                  <div class="admin-actions">
+
+                    <button
+                      onclick="editJournal(
+                        '${j.id}',
+                        '${escapeHtml(
+                          j.title
+                        ).replace(
+                          /'/g,
+                          "\\'"
+                        )}',
+                        '${escapeHtml(
+                          j.body
+                        )
+                          .replace(
+                            /'/g,
+                            "\\'"
+                          )
+                          .replace(
+                            /\n/g,
+                            "\\n"
+                          )}'
+                      )"
+                    >
+                      EDIT
+                    </button>
+
+                    <button
+                      class="danger"
+                      onclick="deleteJournal('${j.id}')"
+                    >
+                      DELETE
+                    </button>
+
+                  </div>
 
                 </div>
+              `)
+              .join("")
 
-                <div class="admin-actions">
-
-                  <button
-                    onclick="editJournal(
-                      '${j.id}',
-                      '${escapeHtml(j.title).replace(/'/g, "\\'")}',
-                      '${escapeHtml(j.body)
-                        .replace(/'/g, "\\'")
-                        .replace(/\n/g, "\\n")}'
-                    )"
-                  >
-                    EDIT
-                  </button>
-
-                  <button
-                    class="danger"
-                    onclick="deleteJournal('${j.id}')"
-                  >
-                    DELETE
-                  </button>
-
-                </div>
-
-              </div>
-            `)
-            .join("")
-
-        : `
-          <p class="empty-state">
-            No entries yet.
-          </p>
-        `;
+          : `
+            <p class="empty-state">
+              No entries yet.
+            </p>
+          `;
     }
 
   } catch (error) {
@@ -1023,344 +1176,371 @@ async function refreshAdmin() {
 
 /* =========================================================
    ADD / EDIT PHOTOS
-   FIXED VERSION
 ========================================================= */
 
-document
-  .getElementById("photoForm")
-  .addEventListener("submit", async e => {
+const photoForm =
+  document.getElementById(
+    "photoForm"
+  );
 
-    e.preventDefault();
+if (photoForm) {
 
+  photoForm.addEventListener(
+    "submit",
+    async e => {
 
-    if (!db) {
-
-      adminMsg.textContent =
-        "Supabase is not connected.";
-
-      return;
-    }
+      e.preventDefault();
 
 
-    const file =
-      document.getElementById("photoFile")
-        .files[0];
+      if (!db) {
+
+        adminMsg.textContent =
+          "Supabase is not connected.";
+
+        return;
+      }
 
 
-    const title =
-      document.getElementById("photoTitle")
-        .value
-        .trim();
+      const file =
+        document.getElementById(
+          "photoFile"
+        ).files[0];
 
 
-    const editingId =
-      e.currentTarget.dataset.editingId ||
-      "";
+      const title =
+        document.getElementById(
+          "photoTitle"
+        ).value.trim();
 
 
-    const oldPath =
-      e.currentTarget.dataset.oldPath ||
-      "";
-
-
-    if (!title) {
-
-      adminMsg.textContent =
-        "Please give the photo a title.";
-
-      return;
-    }
-
-
-    if (!file && !editingId) {
-
-      adminMsg.textContent =
-        "Please choose a photo.";
-
-      return;
-    }
-
-
-    /* Maximum image size: 25 MB */
-
-    const maxSize =
-      25 * 1024 * 1024;
-
-
-    if (
-      file &&
-      file.size > maxSize
-    ) {
-
-      adminMsg.textContent =
-        "That image is too large. Please use an image under 25 MB.";
-
-      return;
-    }
-
-
-    const button =
-      e.currentTarget.querySelector(
-        "button"
-      );
-
-
-    button.disabled = true;
-
-
-    adminMsg.textContent =
-      editingId
-        ? "Replacing photo…"
-        : "Uploading photo…";
-
-
-    try {
-
-      let imagePath =
-        oldPath;
-
-
-      let imageUrl =
+      const editingId =
+        e.currentTarget.dataset.editingId ||
         "";
 
 
-      /* -----------------------------------------
-         UPLOAD NEW IMAGE
-      ----------------------------------------- */
-
-      if (file) {
-
-        const safeName =
-          file.name
-            .replace(
-              /[^a-zA-Z0-9._-]/g,
-              "-"
-            )
-            .replace(
-              /-+/g,
-              "-"
-            );
+      const oldPath =
+        e.currentTarget.dataset.oldPath ||
+        "";
 
 
-        const path =
-          `${crypto.randomUUID()}-${safeName}`;
+      if (!title) {
 
+        adminMsg.textContent =
+          "Please give the photo a title.";
 
-        /*
-          Supabase upload request.
-          If it takes longer than 60 seconds,
-          we stop instead of leaving the page
-          stuck forever.
-        */
-
-        const uploadPromise =
-          db
-            .storage
-            .from("gallery")
-            .upload(
-              path,
-              file,
-              {
-                cacheControl: "3600",
-                upsert: false
-              }
-            );
-
-
-        const timeoutPromise =
-          new Promise((_, reject) => {
-
-            setTimeout(() => {
-
-              reject(
-                new Error(
-                  "The image upload timed out after 60 seconds. Check your internet connection and try again."
-                )
-              );
-
-            }, 60000);
-
-          });
-
-
-        const upload =
-          await Promise.race([
-            uploadPromise,
-            timeoutPromise
-          ]);
-
-
-        if (upload.error) {
-
-          throw new Error(
-            `Image upload failed: ${upload.error.message}`
-          );
-
-        }
-
-
-        imagePath =
-          path;
-
-
-        const publicUrlResult =
-          db
-            .storage
-            .from("gallery")
-            .getPublicUrl(path);
-
-
-        imageUrl =
-          publicUrlResult
-            .data
-            .publicUrl;
-
-
-        if (!imageUrl) {
-
-          throw new Error(
-            "The image uploaded, but Supabase did not return an image URL."
-          );
-
-        }
-
+        return;
       }
 
 
-      /* -----------------------------------------
-         SAVE PHOTO TO DATABASE
-      ----------------------------------------- */
+      if (!file && !editingId) {
 
-      let result;
+        adminMsg.textContent =
+          "Please choose a photo.";
 
-
-      if (editingId) {
-
-        const updateData = {
-          title
-        };
-
-
-        if (file) {
-
-          updateData.image_url =
-            imageUrl;
-
-          updateData.image_path =
-            imagePath;
-
-        }
-
-
-        result =
-          await db
-            .from("gallery_photos")
-            .update(updateData)
-            .eq("id", editingId);
-
-      } else {
-
-        result =
-          await db
-            .from("gallery_photos")
-            .insert({
-              title,
-              image_url: imageUrl,
-              image_path: imagePath
-            });
-
+        return;
       }
 
 
-      if (result.error) {
+      /* Maximum image size: 25 MB */
 
-        throw new Error(
-          `Database error: ${result.error.message}`
-        );
+      const maxSize =
+        25 * 1024 * 1024;
 
-      }
-
-
-      /* -----------------------------------------
-         DELETE OLD IMAGE AFTER SUCCESSFUL REPLACE
-      ----------------------------------------- */
 
       if (
-        editingId &&
         file &&
-        oldPath
+        file.size > maxSize
       ) {
 
-        const removeResult =
-          await db
-            .storage
-            .from("gallery")
-            .remove([
-              oldPath
-            ]);
+        adminMsg.textContent =
+          "That image is too large. Please use an image under 25 MB.";
 
-
-        if (removeResult.error) {
-
-          console.warn(
-            "New photo saved, but old image could not be deleted:",
-            removeResult.error.message
-          );
-
-        }
-
+        return;
       }
 
 
-      /* -----------------------------------------
-         SUCCESS
-      ----------------------------------------- */
-
-      e.currentTarget.reset();
-
-
-      delete e.currentTarget.dataset.editingId;
-      delete e.currentTarget.dataset.oldPath;
+      const button =
+        e.currentTarget.querySelector(
+          "button"
+        );
 
 
-      button.textContent =
-        "ADD PHOTO";
-
-
-      button.disabled =
-        false;
+      button.disabled = true;
 
 
       adminMsg.textContent =
         editingId
-          ? "Photo updated successfully."
-          : "Photo added successfully.";
+          ? "Replacing photo…"
+          : "Uploading photo…";
 
 
-      await refreshAdmin();
+      try {
 
-      await loadSite();
-
-
-    } catch (error) {
-
-      console.error(
-        "PHOTO UPLOAD ERROR:",
-        error
-      );
+        let imagePath =
+          oldPath;
 
 
-      button.disabled =
-        false;
+        let imageUrl =
+          "";
 
 
-      adminMsg.textContent =
-        error?.message ||
-        "Something went wrong while uploading the photo.";
+        /* -----------------------------------------
+           UPLOAD NEW IMAGE
+        ----------------------------------------- */
+
+        if (file) {
+
+          const safeName =
+            file.name
+              .replace(
+                /[^a-zA-Z0-9._-]/g,
+                "-"
+              )
+              .replace(
+                /-+/g,
+                "-"
+              );
+
+
+          const path =
+            `${crypto.randomUUID()}-${safeName}`;
+
+
+          const uploadPromise =
+            db
+              .storage
+              .from("gallery")
+              .upload(
+                path,
+                file,
+                {
+                  cacheControl: "3600",
+                  upsert: false
+                }
+              );
+
+
+          const timeoutPromise =
+            new Promise(
+              (_, reject) => {
+
+                setTimeout(
+                  () => {
+
+                    reject(
+                      new Error(
+                        "The image upload timed out after 60 seconds. Check your internet connection and try again."
+                      )
+                    );
+
+                  },
+                  60000
+                );
+
+              }
+            );
+
+
+          const upload =
+            await Promise.race([
+              uploadPromise,
+              timeoutPromise
+            ]);
+
+
+          if (upload.error) {
+
+            throw new Error(
+              `Image upload failed: ${upload.error.message}`
+            );
+
+          }
+
+
+          imagePath =
+            path;
+
+
+          const publicUrlResult =
+            db
+              .storage
+              .from("gallery")
+              .getPublicUrl(
+                path
+              );
+
+
+          imageUrl =
+            publicUrlResult
+              .data
+              .publicUrl;
+
+
+          if (!imageUrl) {
+
+            throw new Error(
+              "The image uploaded, but Supabase did not return an image URL."
+            );
+
+          }
+
+        }
+
+
+        /* -----------------------------------------
+           SAVE PHOTO TO DATABASE
+        ----------------------------------------- */
+
+        let result;
+
+
+        if (editingId) {
+
+          const updateData = {
+            title
+          };
+
+
+          if (file) {
+
+            updateData.image_url =
+              imageUrl;
+
+            updateData.image_path =
+              imagePath;
+
+          }
+
+
+          result =
+            await db
+              .from(
+                "gallery_photos"
+              )
+              .update(
+                updateData
+              )
+              .eq(
+                "id",
+                editingId
+              );
+
+        } else {
+
+          result =
+            await db
+              .from(
+                "gallery_photos"
+              )
+              .insert({
+                title,
+                image_url:
+                  imageUrl,
+                image_path:
+                  imagePath
+              });
+
+        }
+
+
+        if (result.error) {
+
+          throw new Error(
+            `Database error: ${result.error.message}`
+          );
+
+        }
+
+
+        /* -----------------------------------------
+           DELETE OLD IMAGE AFTER REPLACE
+        ----------------------------------------- */
+
+        if (
+          editingId &&
+          file &&
+          oldPath
+        ) {
+
+          const removeResult =
+            await db
+              .storage
+              .from("gallery")
+              .remove([
+                oldPath
+              ]);
+
+
+          if (removeResult.error) {
+
+            console.warn(
+              "New photo saved, but old image could not be deleted:",
+              removeResult.error.message
+            );
+
+          }
+
+        }
+
+
+        /* -----------------------------------------
+           SUCCESS
+        ----------------------------------------- */
+
+        e.currentTarget.reset();
+
+
+        delete e.currentTarget
+          .dataset
+          .editingId;
+
+
+        delete e.currentTarget
+          .dataset
+          .oldPath;
+
+
+        button.textContent =
+          "ADD PHOTO";
+
+
+        button.disabled =
+          false;
+
+
+        adminMsg.textContent =
+          editingId
+            ? "Photo updated successfully."
+            : "Photo added successfully.";
+
+
+        await refreshAdmin();
+
+        await loadSite();
+
+
+      } catch (error) {
+
+        console.error(
+          "PHOTO UPLOAD ERROR:",
+          error
+        );
+
+
+        button.disabled =
+          false;
+
+
+        adminMsg.textContent =
+          error?.message ||
+          "Something went wrong while uploading the photo.";
+
+      }
 
     }
+  );
 
-  });
+}
 
 
 /* =========================================================
@@ -1466,9 +1646,14 @@ window.deletePhoto = async (
 
     const result =
       await db
-        .from("gallery_photos")
+        .from(
+          "gallery_photos"
+        )
         .delete()
-        .eq("id", id);
+        .eq(
+          "id",
+          id
+        );
 
 
     if (result.error) {
@@ -1528,119 +1713,141 @@ window.deletePhoto = async (
    ADD / EDIT JOURNAL
 ========================================================= */
 
-document
-  .getElementById("journalForm")
-  .addEventListener("submit", async e => {
+const journalForm =
+  document.getElementById(
+    "journalForm"
+  );
 
-    e.preventDefault();
+if (journalForm) {
 
+  journalForm.addEventListener(
+    "submit",
+    async e => {
 
-    if (!db) {
-
-      adminMsg.textContent =
-        "Supabase is not connected.";
-
-      return;
-    }
+      e.preventDefault();
 
 
-    const title =
-      document
-        .getElementById("journalTitle")
-        .value
-        .trim();
-
-
-    const body =
-      document
-        .getElementById("journalBody")
-        .value
-        .trim();
-
-
-    const editingId =
-      e.currentTarget.dataset.editingId ||
-      "";
-
-
-    if (!title || !body) {
-
-      adminMsg.textContent =
-        "Please fill in the title and journal entry.";
-
-      return;
-    }
-
-
-    try {
-
-      const result =
-        editingId
-
-          ? await db
-              .from("journal_entries")
-              .update({
-                title,
-                body
-              })
-              .eq(
-                "id",
-                editingId
-              )
-
-          : await db
-              .from("journal_entries")
-              .insert({
-                title,
-                body
-              });
-
-
-      if (result.error) {
+      if (!db) {
 
         adminMsg.textContent =
-          result.error.message;
+          "Supabase is not connected.";
 
         return;
       }
 
 
-      e.currentTarget.reset();
+      const title =
+        document
+          .getElementById(
+            "journalTitle"
+          )
+          .value
+          .trim();
 
 
-      delete e.currentTarget.dataset.editingId;
+      const body =
+        document
+          .getElementById(
+            "journalBody"
+          )
+          .value
+          .trim();
 
 
-      e.currentTarget.querySelector(
-        "button"
-      ).textContent =
-        "ADD ENTRY";
+      const editingId =
+        e.currentTarget.dataset.editingId ||
+        "";
 
 
-      adminMsg.textContent =
-        editingId
-          ? "Journal entry updated."
-          : "Journal entry added.";
+      if (!title || !body) {
+
+        adminMsg.textContent =
+          "Please fill in the title and journal entry.";
+
+        return;
+      }
 
 
-      await refreshAdmin();
+      try {
 
-      await loadSite();
+        const result =
+          editingId
+
+            ? await db
+                .from(
+                  "journal_entries"
+                )
+                .update({
+                  title,
+                  body
+                })
+                .eq(
+                  "id",
+                  editingId
+                )
+
+            : await db
+                .from(
+                  "journal_entries"
+                )
+                .insert({
+                  title,
+                  body
+                });
 
 
-    } catch (error) {
+        if (result.error) {
 
-      console.error(
-        "JOURNAL ERROR:",
-        error
-      );
+          adminMsg.textContent =
+            result.error.message;
 
-      adminMsg.textContent =
-        error?.message ||
-        "Something went wrong with the journal.";
+          return;
+        }
+
+
+        e.currentTarget.reset();
+
+
+        delete e.currentTarget
+          .dataset
+          .editingId;
+
+
+        e.currentTarget
+          .querySelector(
+            "button"
+          )
+          .textContent =
+          "ADD ENTRY";
+
+
+        adminMsg.textContent =
+          editingId
+            ? "Journal entry updated."
+            : "Journal entry added.";
+
+
+        await refreshAdmin();
+
+        await loadSite();
+
+
+      } catch (error) {
+
+        console.error(
+          "JOURNAL ERROR:",
+          error
+        );
+
+        adminMsg.textContent =
+          error?.message ||
+          "Something went wrong with the journal.";
+      }
+
     }
+  );
 
-  });
+}
 
 
 /* =========================================================
@@ -1705,57 +1912,63 @@ window.editJournal = (
    DELETE JOURNAL
 ========================================================= */
 
-window.deleteJournal = async id => {
+window.deleteJournal =
+  async id => {
 
-  if (
-    !confirm(
-      "Delete this journal entry?"
-    )
-  ) {
-    return;
-  }
-
-
-  if (!db) return;
-
-
-  try {
-
-    const result =
-      await db
-        .from("journal_entries")
-        .delete()
-        .eq("id", id);
-
-
-    if (result.error) {
-
-      alert(
-        result.error.message
-      );
-
+    if (
+      !confirm(
+        "Delete this journal entry?"
+      )
+    ) {
       return;
     }
 
 
-    await refreshAdmin();
-
-    await loadSite();
+    if (!db) return;
 
 
-  } catch (error) {
+    try {
 
-    console.error(
-      "DELETE JOURNAL ERROR:",
-      error
-    );
+      const result =
+        await db
+          .from(
+            "journal_entries"
+          )
+          .delete()
+          .eq(
+            "id",
+            id
+          );
 
-    alert(
-      error?.message ||
-      "Couldn't delete the journal entry."
-    );
-  }
-};
+
+      if (result.error) {
+
+        alert(
+          result.error.message
+        );
+
+        return;
+      }
+
+
+      await refreshAdmin();
+
+      await loadSite();
+
+
+    } catch (error) {
+
+      console.error(
+        "DELETE JOURNAL ERROR:",
+        error
+      );
+
+      alert(
+        error?.message ||
+        "Couldn't delete the journal entry."
+      );
+    }
+  };
 
 
 /* =========================================================
@@ -1763,4 +1976,3 @@ window.deleteJournal = async id => {
 ========================================================= */
 
 loadSite();
-```
