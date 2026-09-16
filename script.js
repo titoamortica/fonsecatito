@@ -188,6 +188,7 @@ document.getElementById("journalNo").addEventListener("click", () => {
    LOAD WEBSITE
 ========================================================= */
 
+```js
 async function loadSite() {
   if (!db) {
     galleryGrid.innerHTML = localGallery();
@@ -201,6 +202,59 @@ async function loadSite() {
     bindSocial();
 
     return;
+  }
+
+  try {
+    const [photosResult, journalsResult] = await Promise.all([
+      db
+        .from("gallery_photos")
+        .select("*")
+        .order("created_at", { ascending: false }),
+
+      db
+        .from("journal_entries")
+        .select("*")
+        .order("created_at", { ascending: false })
+    ]);
+
+    if (photosResult.error) {
+      console.error("GALLERY ERROR:", photosResult.error);
+
+      galleryGrid.innerHTML = localGallery();
+
+      bindSocial();
+    } else {
+      renderGallery(photosResult.data || []);
+    }
+
+    if (journalsResult.error) {
+      console.error("JOURNAL ERROR:", journalsResult.error);
+
+      journalList.innerHTML = `
+        <p class="empty-state">
+          Journal unavailable.
+        </p>
+      `;
+    } else {
+      renderJournal(journalsResult.data || []);
+    }
+
+  } catch (error) {
+    console.error("LOAD SITE ERROR:", error);
+
+    galleryGrid.innerHTML = localGallery();
+
+    journalList.innerHTML = `
+      <p class="empty-state">
+        Archive temporarily unavailable.
+      </p>
+    `;
+
+    bindSocial();
+  }
+}
+```
+
   }
 
   try {
