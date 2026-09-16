@@ -188,7 +188,6 @@ document.getElementById("journalNo").addEventListener("click", () => {
    LOAD WEBSITE
 ========================================================= */
 
-```js
 async function loadSite() {
   if (!db) {
     galleryGrid.innerHTML = localGallery();
