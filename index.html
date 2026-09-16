@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tito Fonseca — Midori Mantises</title>
+  <meta name="description" content="Tito Fonseca — Midori Mantises player archive.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+</head>
+<body>
+<div class="grain"></div>
+
+<header class="topbar">
+  <a class="brand" href="#home">TF<span>/46</span></a>
+  <nav aria-label="Main navigation">
+    <a href="#profile">Profile</a>
+    <a href="#team">Team</a>
+    <a href="#stats">Stats</a>
+    <a href="#highlights">Highlights</a>
+    <a href="#journal" id="journalNav">Journal</a>
+    <a href="#gallery">Gallery</a>
+  </nav>
+  <button class="menu" type="button" aria-label="Open navigation">☰</button>
+</header>
+
+<main>
+  <section id="home" class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">MIDORI MANTISES / PLAYER ARCHIVE</p>
+      <h1>TITO<br><em>FONSECA</em></h1>
+      <p class="hero-intro">The games. The numbers. The moments worth keeping.</p>
+      <a class="scroll-link" href="#profile">ENTER ARCHIVE <span>↓</span></a>
+    </div>
+
+    <div class="hero-photo">
+      <img src="assets/tito-fonseca.png" alt="Tito Fonseca in the Midori Mantises kit">
+      <div class="photo-stamp"><span>#46</span><span>RIGHT / ALL 5</span></div>
+    </div>
+  </section>
+
+  <section id="profile" class="section profile">
+    <div class="section-label">01 / PROFILE</div>
+    <div class="split">
+      <div>
+        <p class="kicker">PLAYER FILE</p>
+        <h2>BUILT FOR<br>ANY ROLE.</h2>
+      </div>
+      <div class="bio">
+        <p>Tito Fonseca is a position-flexible player for the Midori Mantises, capable of stepping into all five positions.</p>
+        <div class="facts">
+          <div><span>NAME</span><b>Tito Fonseca</b></div>
+          <div><span>POSITION</span><b>ALL 5</b></div>
+          <div><span>JERSEY</span><b>#46</b></div>
+          <div><span>HEIGHT</span><b>6'9"</b></div>
+          <div><span>HAND</span><b>RIGHT</b></div>
+          <div><span>TEAM</span><b>Midori Mantises</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team" class="section dark">
+    <div class="section-label">02 / TEAM</div>
+    <div class="team-layout">
+      <div>
+        <p class="kicker">CURRENT HOME</p>
+        <h2>MIDORI<br>MANTISES</h2>
+        <p class="muted">A super team on the making thanks to the addition of Tito Fonseca.</p>
+      </div>
+      <div class="team-emblem">
+        <img src="assets/midori-mantises.png" alt="Midori Mantises logo">
+        <small>MM / 46</small>
+      </div>
+    </div>
+  </section>
+
+  <section id="stats" class="section">
+    <div class="section-label">03 / STATS</div>
+    <div class="stats-head">
+      <div>
+        <p class="kicker">SEASON LOG</p>
+        <h2>NUMBERS<br>ON PAPER.</h2>
+      </div>
+      <p class="muted">Tito Fonseca's current headline numbers.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat"><strong>60</strong><span>POINTS PER GAME</span></div>
+      <div class="stat"><strong>70%</strong><span>FIELD GOAL</span></div>
+    </div>
+  </section>
+
+  <section id="highlights" class="section dark">
+    <div class="section-label">04 / HIGHLIGHTS</div>
+    <div class="split">
+      <div>
+        <p class="kicker">MILESTONES</p>
+        <h2>THE<br>WALL.</h2>
+      </div>
+      <div class="timeline">
+        <article><span>01</span><div><h3>PRE-SEASON</h3><p>Winning the pre-season undefeated.</p></div></article>
+        <article><span>02</span><div><h3>100 POINTS</h3><p>Dropping 100 points.</p></div></article>
+        <article><span>03</span><div><h3>MORE TO COME</h3><p>More highlights to be made.</p></div></article>
+        <article><span>04</span><div><h3>MORE TO COME</h3><p>More highlights to be made.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="journal" class="section journal-section">
+    <div class="section-label">05 / JOURNAL</div>
+    <div class="journal-head">
+      <div>
+        <p class="kicker">PRIVATE ARCHIVE</p>
+        <h2>THE<br>JOURNAL.</h2>
+      </div>
+      <div class="private-note">Some things are better<br>read with permission.</div>
+    </div>
+    <div id="journalList" class="journal-list"></div>
+  </section>
+
+  <section id="gallery" class="section dark gallery-section">
+    <div class="section-label">06 / GALLERY</div>
+    <div class="gallery-head">
+      <div>
+        <p class="kicker">PHOTO ARCHIVE</p>
+        <h2>THE<br>CAMERA ROLL.</h2>
+      </div>
+    </div>
+    <div id="galleryGrid" class="gallery-grid"></div>
+  </section>
+</main>
+
+<footer>
+  <span>TITO FONSECA / #46</span>
+  <span>MIDORI MANTISES</span>
+  <button id="ownerLoginBtn" class="owner-link" type="button">OWNER</button>
+</footer>
+
+<!-- Journal gate -->
+<div id="journalGate" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="journalGateTitle">
+  <div class="modal-box gate-box">
+    <button class="close" data-close="journalGate" type="button" aria-label="Close">×</button>
+    <p class="kicker">RESTRICTED</p>
+    <h2 id="journalGateTitle">ARE YOU<br>SURE?</h2>
+    <p class="gate-copy">You're about to open Tito's private journal. If you don't mean to see it, this is your chance to leave.</p>
+    <div class="gate-actions">
+      <button id="journalYes" class="primary" type="button">YES, I'M SURE</button>
+      <button id="journalNo" class="secondary" type="button">NO, GET ME OUT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Owner login -->
+<div id="loginModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <button class="close" data-close="loginModal" type="button" aria-label="Close">×</button>
+    <p class="kicker">PRIVATE AREA</p>
+    <h2>TITO'S SUPER DUPER<br>SECRET PASSCODE</h2>
+    <form id="loginForm">
+      <input id="passcode" type="password" autocomplete="current-password" placeholder="Enter passcode" required>
+      <button class="primary" type="submit">UNLOCK</button>
+    </form>
+    <p id="loginMsg" class="form-msg"></p>
+  </div>
+</div>
+
+<!-- Owner control room -->
+<div id="adminModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-box admin-box">
+    <button class="close" data-close="adminModal" type="button" aria-label="Close">×</button>
+    <div class="admin-top">
+      <div><p class="kicker">OWNER AREA</p><h2>TITO'S CONTROL ROOM</h2></div>
+      <button id="logoutBtn" class="secondary" type="button">LOG OUT</button>
+    </div>
+
+    <div class="admin-tabs">
+      <button class="tab active" data-tab="photos" type="button">PHOTOS</button>
+      <button class="tab" data-tab="journals" type="button">JOURNAL</button>
+    </div>
+
+    <div id="photosTab" class="admin-tab-content">
+      <form id="photoForm" class="admin-form">
+        <label>PHOTO TITLE<input id="photoTitle" maxlength="80" placeholder="e.g. Game night" required></label>
+        <label>PHOTO FILE<input id="photoFile" type="file" accept="image/*" required></label>
+        <button class="primary" type="submit">ADD PHOTO</button>
+      </form>
+      <div id="adminPhotos"></div>
+    </div>
+
+    <div id="journalsTab" class="admin-tab-content hidden">
+      <form id="journalForm" class="admin-form">
+        <label>JOURNAL TITLE<input id="journalTitle" maxlength="100" placeholder="Entry title" required></label>
+        <label>JOURNAL ENTRY<textarea id="journalBody" rows="7" maxlength="5000" placeholder="Write your entry..." required></textarea></label>
+        <button class="primary" type="submit">ADD ENTRY</button>
+      </form>
+      <div id="adminJournals"></div>
+    </div>
+
+    <p id="adminMsg" class="form-msg"></p>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+TITO FONSECA ARCHIVE
+
+1. Read README.md.
+2. The two images are already inside assets/.
+3. Run schema.sql in Supabase.
+4. Put your Supabase URL, anon key and owner email in supabase-config.js.
+5. Upload this whole folder to GitHub Pages.
